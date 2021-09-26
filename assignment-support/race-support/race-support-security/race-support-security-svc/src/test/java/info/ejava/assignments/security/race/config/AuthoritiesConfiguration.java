@@ -31,6 +31,7 @@ import java.util.stream.Collectors;
 @ComponentScan(basePackageClasses = {
         SecurityConfiguration.class,
         RacesSecurityConfiguration.class,
+        RacersSecurityConfiguration.class,
         TestHelperConfiguration.class})
 @EnableGlobalMethodSecurity(prePostEnabled = true)
 public class AuthoritiesConfiguration {

@@ -16,31 +16,12 @@ import org.springframework.security.core.userdetails.UserDetails;
 @RequiredArgsConstructor
 public class SecureRacesServiceImpl implements RacesService {
     private final RacesService serviceImpl;
-
-    protected String getUsername() {
-        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        return principal instanceof UserDetails ? ((UserDetails) principal).getUsername() : null;
-    }
-    protected boolean hasAuthority(String authority) {
-        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        return principal instanceof UserDetails ?
-                ((UserDetails) principal).getAuthorities().contains(new SimpleGrantedAuthority(authority)) :
-                false;
-    }
-    protected void isOwnerOrAuthority(String raceId, String authority) {
-        if (null==authority || !hasAuthority(authority)) {
-            RaceDTO race = serviceImpl.getRace(raceId);
-            if (!StringUtils.equals(race.getOwnername(), getUsername())) {
-                throw new AccessDeniedException(
-                        String.format("%s is not race owner or have %s authority", getUsername(), authority));
-            }
-        }
-    }
+    private final AuthorizationHelper authzHelper;
 
     @Override
     @PreAuthorize("isAuthenticated()")
     public RaceDTO createRace(RaceDTO newRace) {
-        newRace.setOwnername(getUsername());
+        newRace.setOwnername(authzHelper.getUsername());
         return serviceImpl.createRace(newRace);
     }
 
@@ -52,14 +33,14 @@ public class SecureRacesServiceImpl implements RacesService {
     @Override
     @PreAuthorize("isAuthenticated()")
     public RaceDTO updateRace(String id, RaceDTO updateRace) {
-        isOwnerOrAuthority(id, null);
+        authzHelper.isOwnerOrAuthority(()->serviceImpl.getRace(id).getOwnername(), null);
         return serviceImpl.updateRace(id, updateRace);
     }
 
     @Override
     @PreAuthorize("isAuthenticated()")
     public RaceDTO cancelRace(String id) {
-        isOwnerOrAuthority(id, null);
+        authzHelper.isOwnerOrAuthority(()->serviceImpl.getRace(id).getOwnername(), null);
         return serviceImpl.cancelRace(id);
     }
 
@@ -71,7 +52,7 @@ public class SecureRacesServiceImpl implements RacesService {
     @Override
     @PreAuthorize("isAuthenticated()")
     public void deleteRace(String id) {
-        isOwnerOrAuthority(id, "ROLE_MGR");
+        authzHelper.isOwnerOrAuthority(()->serviceImpl.getRace(id).getOwnername(), "ROLE_MGR");
         serviceImpl.deleteRace(id);
     }
 
