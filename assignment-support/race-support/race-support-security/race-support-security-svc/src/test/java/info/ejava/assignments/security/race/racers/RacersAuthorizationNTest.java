@@ -89,6 +89,8 @@ public class RacersAuthorizationNTest {
             ResponseEntity<RacerDTO> response = authnClient.createRacer(validRacer);
             //then
             then(response.getStatusCode()).isEqualTo(HttpStatus.CREATED);
+            RacerDTO createdRacer = response.getBody();
+            then(createdRacer.getUsername()).as("username not redacted").isNull();
         }
         @Test
         void cannot_modify_another_owners_race() {

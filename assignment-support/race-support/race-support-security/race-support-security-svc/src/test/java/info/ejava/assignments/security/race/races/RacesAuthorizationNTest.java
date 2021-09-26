@@ -1,6 +1,7 @@
 package info.ejava.assignments.security.race.races;
 
 import info.ejava.assignments.api.race.client.factories.RaceDTOFactory;
+import info.ejava.assignments.api.race.client.racers.RacerDTO;
 import info.ejava.assignments.api.race.client.races.RaceDTO;
 import info.ejava.assignments.api.race.client.races.RaceListDTO;
 import info.ejava.assignments.api.race.client.races.RacesAPI;
@@ -88,6 +89,8 @@ public class RacesAuthorizationNTest {
             ResponseEntity<RaceDTO> response = authnClient.createRace(validRace);
             //then
             then(response.getStatusCode()).isEqualTo(HttpStatus.CREATED);
+            RaceDTO createdRace = response.getBody();
+            then(createdRace.getOwnername()).as("ownername not redacted").isNull();
         }
         @Test
         void cannot_modify_another_owners_race() {
