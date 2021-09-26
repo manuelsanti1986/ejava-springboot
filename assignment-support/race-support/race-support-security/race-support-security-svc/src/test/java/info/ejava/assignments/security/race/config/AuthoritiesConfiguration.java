@@ -1,6 +1,7 @@
 package info.ejava.assignments.security.race.config;
 
 import info.ejava.assignments.security.race.security.AccountProperties;
+import info.ejava.assignments.security.race.security.RaceAccounts;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
@@ -8,7 +9,10 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 import org.springframework.http.HttpMethod;
+import org.springframework.security.config.annotation.authentication.configuration.EnableGlobalAuthentication;
+import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.User;
@@ -28,6 +32,7 @@ import java.util.stream.Collectors;
         SecurityConfiguration.class,
         RacesSecurityConfiguration.class,
         TestHelperConfiguration.class})
+@EnableGlobalMethodSecurity(prePostEnabled = true)
 public class AuthoritiesConfiguration {
     @Configuration
     @Profile("authorities")
@@ -49,9 +54,9 @@ public class AuthoritiesConfiguration {
         }
 
         @Bean
-        public UserDetailsService userDetailsService(PasswordEncoder encoder, List<AccountProperties> accounts) {
+        public UserDetailsService userDetailsService(PasswordEncoder encoder, RaceAccounts accounts) {
             User.UserBuilder builder = User.builder().passwordEncoder(encoder::encode);
-            List<UserDetails> users = accounts.stream()
+            List<UserDetails> users = accounts.getAccounts().stream()
                     .map(a->builder.username(a.getUsername())
                             .password(a.getPassword())
                             .authorities(a.getAuthorities().toArray(new String[0]))

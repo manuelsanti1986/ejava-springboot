@@ -9,6 +9,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 
@@ -23,7 +24,7 @@ public class SecureRacesServiceImpl implements RacesService {
     protected boolean hasAuthority(String authority) {
         Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         return principal instanceof UserDetails ?
-                ((UserDetails) principal).getAuthorities().contains(authority) :
+                ((UserDetails) principal).getAuthorities().contains(new SimpleGrantedAuthority(authority)) :
                 false;
     }
     protected void isOwnerOrAuthority(String raceId, String authority) {
@@ -68,7 +69,7 @@ public class SecureRacesServiceImpl implements RacesService {
     }
 
     @Override
-    @PreAuthorize("hasRole('MGR') || isAuthenticated()")
+    @PreAuthorize("isAuthenticated()")
     public void deleteRace(String id) {
         isOwnerOrAuthority(id, "ROLE_MGR");
         serviceImpl.deleteRace(id);
