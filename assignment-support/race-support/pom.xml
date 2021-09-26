@@ -25,7 +25,6 @@
         <module>race-support-testing</module>
         <module>race-support-api</module>
         <module>race-support-security</module>
-        <module>race-support-security-svc</module>
     </modules>
 
     <repositories>
