@@ -1,8 +1,9 @@
-package info.ejava.assignments.security.race.races;
+package info.ejava.assignments.security.race.racers;
 
 import info.ejava.assignments.api.race.client.racers.RacerDTO;
 import info.ejava.assignments.api.race.client.racers.RacerListDTO;
 import info.ejava.assignments.api.race.racers.RacersService;
+import info.ejava.assignments.security.race.security.AuthorizationHelper;
 import info.ejava.examples.common.exceptions.ClientErrorException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;

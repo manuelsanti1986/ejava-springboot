@@ -1,4 +1,4 @@
-package info.ejava.assignments.security.race.races;
+package info.ejava.assignments.security.race.security;
 
 import info.ejava.assignments.api.race.client.races.RaceDTO;
 import org.apache.commons.lang3.StringUtils;

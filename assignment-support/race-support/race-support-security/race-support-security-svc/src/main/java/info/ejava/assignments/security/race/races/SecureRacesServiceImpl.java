@@ -3,15 +3,9 @@ package info.ejava.assignments.security.race.races;
 import info.ejava.assignments.api.race.client.races.RaceDTO;
 import info.ejava.assignments.api.race.client.races.RaceListDTO;
 import info.ejava.assignments.api.race.races.RacesService;
-import info.ejava.examples.common.exceptions.ClientErrorException;
+import info.ejava.assignments.security.race.security.AuthorizationHelper;
 import lombok.RequiredArgsConstructor;
-import org.apache.commons.lang3.StringUtils;
-import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
 
 @RequiredArgsConstructor
 public class SecureRacesServiceImpl implements RacesService {

@@ -5,7 +5,9 @@ import info.ejava.assignments.security.race.security.RaceAccounts;
 import info.ejava.examples.common.web.RestTemplateConfig;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -22,7 +24,14 @@ import java.util.stream.Collectors;
 @Configuration
 @Profile("authorities")
 @Slf4j
-public class TestHelperConfiguration {
+public class AuthorizationTestHelperConfiguration {
+    @Bean
+    @ConfigurationProperties("race")
+    @ConditionalOnMissingBean
+    public RaceAccounts accounts() {
+        return new RaceAccounts();
+    }
+
     private AccountProperties getUserAccount(RaceAccounts accounts, int index) {
         if (accounts.getAccounts().size()>=1) {
             List<AccountProperties> userAccounts = accounts.getAccounts().stream()
