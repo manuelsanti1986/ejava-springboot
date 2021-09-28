@@ -35,7 +35,8 @@ Content published here is not reviewed or approved by my employers (The Johns Ho
 ** review https://github.com/ejavaguy/ejava-springboot/tree/master/svc/svc-api/rpc-greeter-example[RPC Greeter example]
 ** review https://github.com/ejavaguy/ejava-springboot/tree/master/svc/svc-api/springmvc-todos[Spring MVC TODOs example]
 ** review https://github.com/ejavaguy/ejava-springboot/tree/master/svc/svc-api/httpapi-gestures-example[HTTP-API Gestures example]
-** begin link:coursedocs/content/html_single/assignment2-race-api-notes.html[API Assignment 2]
+** begin link:coursedocs/content/html_single/assignment2-race-api-notes.html[API Assignment 2].
+Complete parts 2a (modules), 2c (resources), and 2d (web client/API interactions)
 ** "Late pass" assignment 1 submissions due by Sun03, 6am. 1 Week late assignment 1 submissions due by Wed06, 6am
 
 [id="completed"]
