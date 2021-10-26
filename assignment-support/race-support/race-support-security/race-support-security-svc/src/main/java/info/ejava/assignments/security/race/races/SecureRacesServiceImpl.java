@@ -5,16 +5,19 @@ import info.ejava.assignments.api.race.client.races.RaceListDTO;
 import info.ejava.assignments.api.race.races.RacesService;
 import info.ejava.assignments.security.race.security.AuthorizationHelper;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.access.prepost.PreAuthorize;
+import lombok.extern.slf4j.Slf4j;
 
 @RequiredArgsConstructor
+@Slf4j
 public class SecureRacesServiceImpl implements RacesService {
     private final RacesService serviceImpl;
     private final AuthorizationHelper authzHelper;
 
     @Override
-    @PreAuthorize("isAuthenticated()")
     public RaceDTO createRace(RaceDTO newRace) {
+        String username = authzHelper.getUsername();;
+        log.debug("{} called createRace with {}", username, newRace);
+
         newRace.setOwnername(authzHelper.getUsername());
         return serviceImpl.createRace(newRace);
     }
@@ -25,16 +28,14 @@ public class SecureRacesServiceImpl implements RacesService {
     }
 
     @Override
-    @PreAuthorize("isAuthenticated()")
     public RaceDTO updateRace(String id, RaceDTO updateRace) {
-        authzHelper.isOwnerOrAuthority(()->serviceImpl.getRace(id).getOwnername(), null);
+        authzHelper.assertAuthorityOrOwner(null, ()->serviceImpl.getRace(id).getOwnername());
         return serviceImpl.updateRace(id, updateRace);
     }
 
     @Override
-    @PreAuthorize("isAuthenticated()")
     public RaceDTO cancelRace(String id) {
-        authzHelper.isOwnerOrAuthority(()->serviceImpl.getRace(id).getOwnername(), null);
+        authzHelper.assertAuthorityOrOwner(null, ()->serviceImpl.getRace(id).getOwnername());
         return serviceImpl.cancelRace(id);
     }
 
@@ -44,14 +45,12 @@ public class SecureRacesServiceImpl implements RacesService {
     }
 
     @Override
-    @PreAuthorize("isAuthenticated()")
     public void deleteRace(String id) {
-        authzHelper.isOwnerOrAuthority(()->serviceImpl.getRace(id).getOwnername(), "ROLE_MGR");
+        authzHelper.assertAuthorityOrOwner("ROLE_MGR", ()->serviceImpl.getRace(id).getOwnername());
         serviceImpl.deleteRace(id);
     }
 
     @Override
-    @PreAuthorize("hasRole('ADMIN')")
     public void deleteAllRaces() {
         serviceImpl.deleteAllRaces();
     }

@@ -22,7 +22,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 @Configuration
-@Profile("authorities")
+@Profile({"userdetails","authorities"})
 @Slf4j
 public class AuthorizationTestHelperConfiguration {
     @Bean
@@ -58,29 +58,24 @@ public class AuthorizationTestHelperConfiguration {
     }
 
 
-    @Bean
-    public AccountProperties mgrAccount(RaceAccounts accounts) {
-        return findUserWithAuthority(accounts, "ROLE_MGR");
-    }
-
-    @Bean
-    public AccountProperties adminAccount(RaceAccounts accounts) {
-        return findUserWithAuthority(accounts, "ROLE_ADMIN");
-    }
-
     private AccountProperties findUserWithAuthority(RaceAccounts accounts, String authority) {
         if (accounts.getAccounts().size()>=1) {
             AccountProperties account = accounts.getAccounts().stream()
                     .filter(a->a.getAuthorities().contains(authority))
                     .findFirst()
                     .orElseThrow(()->new IllegalStateException("cannot find user authority " + authority));
-            log.info("using account({}) for %s authority", account, authority);
+            log.info("using account({}) for {} authority", account, authority);
             return account;
         } else {
             throw new IllegalStateException("no user.name/password or accounts specified");
         }
     }
 
+    /**
+     * @param builder
+     * @param accounts
+     * @return Map of all user-configured RestRemplate clients -- keyed by username.
+     */
     @Bean
     @Qualifier("userMap")
     public Map<String, RestTemplate> authnUsers(RestTemplateBuilder builder, RaceAccounts accounts) {
@@ -91,6 +86,23 @@ public class AuthorizationTestHelperConfiguration {
             authnUsers.put(account.getUsername(), new RestTemplateConfig().restTemplateDebug(builder, authn));
         }
         return authnUsers;
+    }
+
+    @Bean
+    @Profile("authorities")
+    public AccountProperties mgrAccount(RaceAccounts accounts) {
+        return findUserWithAuthority(accounts, "ROLE_MGR");
+    }
+
+    @Bean
+    @Profile("authorities")
+    public AccountProperties adminAccount(RaceAccounts accounts) {
+        return findUserWithAuthority(accounts, "ROLE_ADMIN");
+    }
+    @Bean
+    @Profile("authorities")
+    public AccountProperties proxyAccount(RaceAccounts accounts) {
+        return findUserWithAuthority(accounts, "PROXY");
     }
 
     @Bean
@@ -108,13 +120,21 @@ public class AuthorizationTestHelperConfiguration {
         return authnUsers.get(altAccount.getUsername());
     }
     @Bean
+    @Profile("authorities")
     public RestTemplate mgrUser(@Qualifier("userMap") Map<String, RestTemplate> authnUsers,
                                   AccountProperties mgrAccount) {
         return authnUsers.get(mgrAccount.getUsername());
     }
     @Bean
+    @Profile("authorities")
     public RestTemplate adminUser(@Qualifier("userMap") Map<String, RestTemplate> authnUsers,
                                   AccountProperties adminAccount) {
         return authnUsers.get(adminAccount.getUsername());
+    }
+    @Bean
+    @Profile("authorities")
+    public RestTemplate proxyUser(@Qualifier("userMap") Map<String, RestTemplate> authnUsers,
+                                  AccountProperties proxyAccount) {
+        return authnUsers.get(proxyAccount.getUsername());
     }
 }
