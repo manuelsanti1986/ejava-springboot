@@ -16,13 +16,24 @@
     </description>
 
     <properties>
-      <layered>false</layered>
+        <layered>false</layered>
+        <!-- not using build-helper dynamic port#, hardcode for failsafe to use -->
+        <heroku.appName>ejava-boot</heroku.appName>
+        <server.http.port>443</server.http.port>
+        <!--don't eagerly run IT test, make builder ask for it since it externally deploys to Heroku -->
+        <skipITs>true</skipITs>
+
+        <spring-boot.repackage.skip>false</spring-boot.repackage.skip>
     </properties>
 
     <dependencies>
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-security</artifactId>
         </dependency>
 
         <dependency>
@@ -35,14 +46,14 @@
             <artifactId>springdoc-openapi-ui</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-devtools</artifactId>
-            <optional>true</optional>
-        </dependency>
-        <dependency>
             <groupId>info.ejava.examples.common</groupId>
             <artifactId>ejava-web-util</artifactId>
             <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.httpcomponents</groupId>
+            <artifactId>httpclient</artifactId>
+            <scope>test</scope>
         </dependency>
 
         <dependency>
@@ -65,33 +76,78 @@
     </dependencies>
 
     <build>
+        <testResources> <!-- used to replace ${variables} in property files -->
+            <testResource>
+                <directory>src/test/resources</directory>
+                <includes> <!-- replace ${heroku.appName} -->
+                    <include>application-heroku.properties</include>
+                </includes>
+                <filtering>true</filtering>
+            </testResource>
+            <testResource>
+                <directory>src/test/resources</directory>
+                <excludes>
+                    <exclude>application-heroku.properties</exclude>
+                </excludes>
+                <filtering>false</filtering>
+            </testResource>
+        </testResources>
+
         <plugins>
-            <plugin>
+            <plugin> <!-- builds a Spring Boot Executable JAR - potentially with layering -->
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
                 <configuration>
+                    <!-- used for remote debugging
                     <excludeDevtools>false</excludeDevtools>
+                    -->
                     <layers>
                         <enabled>${layered}</enabled>
                     </layers>
                 </configuration>
-                <!--
-                <executions>
-                    <execution>
-                        <id>repackage</id>
-                        <goals>
-                            <goal>repackage</goal>
-                        </goals>
-                    </execution>
-                </executions>
-                -->
             </plugin>
 
             <plugin>
                 <groupId>com.heroku.sdk</groupId>
                 <artifactId>heroku-maven-plugin</artifactId>
             </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-failsafe-plugin</artifactId>
+            </plugin>
         </plugins>
     </build>
+
+    <profiles>
+        <profile> <!-- deploys a Spring Boot Executable JAR -->
+            <id>heroku-it-deploy</id>
+            <activation>
+                <property>
+                    <name>skipITs</name>
+                    <value>false</value>
+                </property>
+            </activation>
+            <properties>
+                <spring-boot.repackage.skip>false</spring-boot.repackage.skip>
+            </properties>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>com.heroku.sdk</groupId>
+                        <artifactId>heroku-maven-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>deploy</id>
+                                <phase>pre-integration-test</phase>
+                                <goals>
+                                    <goal>deploy</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
 
 </project>
